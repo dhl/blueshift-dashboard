@@ -63,7 +63,7 @@ const destinationAta = await getOrCreateAssociatedTokenAccount(
     destination.publicKey
 );
 
-console.log(`This is your ATA: ${ata.address}!`)
+console.log(`This is your ATA: ${destinationAta.address}!`)
   
 let tx = await transfer(
     connection, // connection
