@@ -81,7 +81,7 @@ export default function MarketingBanner() {
             <Icon name="Close" size={16 as 18} />
           </button>
           <motion.div
-            className="w-full h-full absolute inset-0 flex items-center justify-center mx-auto"
+            className="pointer-events-none w-full h-full absolute inset-0 flex items-center justify-center mx-auto"
             initial={{ width: "0%", opacity: 0 }}
             animate={{ width: "100%", opacity: 1 }}
             transition={{ duration: 0.3, ease: anticipate }}
