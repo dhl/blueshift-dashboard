@@ -103,3 +103,73 @@ cargo build-bpf --no-default-features
 ```
 
 Cách tiếp cận này cho phép bạn duy trì một codebase duy nhất có thể được điều chỉnh cho an toàn trogn quá trình phát triển hoặc tốc độ trên production chỉ bằng cách bật/tắt các cờ chức năng.
+
+<ArticleSection name="Các phép toán dịch bit" id="bitwise-operations" level="h2" />
+
+Khi thảo luận về các phép toán hiệu quả, các giá trị boolean là một trong những thứ lãng phí nhất. Hãy xem xét điều này: chúng chiếm 1 byte để đại diện cho chỉ hai giá trị có thể: 0 hoặc 1.
+
+Nếu bạn có nhiều giá trị boolean trong mã của mình, bạn có thể lưu trữ chúng hiệu quả hơn nhiều bằng cách sử dụng thao tác bit. Với các phép toán dịch bit, bạn có thể lưu trữ lên đến 8 giá trị boolean khác nhau trong một byte duy nhất.
+
+### Định nghĩa cờ
+
+Định nghĩa cờ dưới dạng các vị trí bit bằng cách sử dụng các phép dịch trái:
+
+```rust
+const FLAG_ACTIVE: u8 = 1 << 0;     // 0000_0001
+const FLAG_VERIFIED: u8 = 1 << 1;   // 0000_0010  
+const FLAG_PREMIUM: u8 = 1 << 2;    // 0000_0100
+const FLAG_LOCKED: u8 = 1 << 3;     // 0000_1000
+```
+
+Để đặt một cờ, chúng ta có thể đơn giản làm như sau:
+
+```rust
+let mut flags = 0u8;           // flags = 0000_0000
+
+flags |= FLAG_ACTIVE;          // flags = 0000_0001
+flags |= FLAG_VERIFIED;        // flags = 0000_0011
+flags |= FLAG_PREMIUM | FLAG_LOCKED;  // flags = 0000_1111
+```
+
+Phép toán `|` (phép toán OR) là hoàn hảo để "bật" các bit cụ thể mà không ảnh hưởng đến các bit khác vì khi bạn OR với 0, bit gốc được bảo toàn và khi bạn OR với 1, kết quả luôn là 1 (cờ được đặt)
+
+Nếu chúng ta muốn kiểm tra xem một cờ có đang hoạt động hay không, chúng ta có thể làm như sau:
+
+```rust
+let flags = 0b0000_0101u8;  // Có cờ ACTIVE và PREMIUM được đặt
+
+// Kiểm tra xem một cờ đơn lẻ có được đặt hay không
+if flags & FLAG_ACTIVE != 0 {
+    println!("Account is active");
+}
+
+// Kiểm tra nếu nhiều cờ được đặt
+if (flags & (FLAG_ACTIVE | FLAG_PREMIUM)) == (FLAG_ACTIVE | FLAG_PREMIUM) {
+    println!("Account is both active and premium");
+}
+
+// Kiểm tra nếu bất kỳ cờ nào trong số nhiều cờ được đặt
+if flags & (FLAG_VERIFIED | FLAG_PREMIUM) != 0 {
+    println!("Account is either verified or premium (or both)");
+}
+```
+
+Phép toán `&` (phép toán AND) là hoàn hảo để "masking" các bit cụ thể nhằm kiểm tra giá trị của chúng, vì khi bạn AND với 0, kết quả luôn là 0 và khi bạn AND với 1, bit gốc được bảo toàn.
+
+Để xóa hoặc chuyển đổi các cờ, thay vào đó chúng ta có thể làm như sau:
+
+```rust
+let mut flags = 0b0000_1111u8;      // Tất cả các cờ đều được đặt
+
+// Xóa một cờ đơn lẻ
+flags &= !FLAG_ACTIVE;              // flags = 0000_1110
+
+// Xóa nhiều cờ cùng một lúc
+flags &= !(FLAG_VERIFIED | FLAG_PREMIUM);   // flags = 0000_1000
+
+// Chuyển đổi một cờ đơn lẻ
+flags ^= FLAG_ACTIVE;               // flags = 0000_1001 (now has VERIFIED)
+flags ^= FLAG_LOCKED;               // flags = 0000_0001 (LOCKED now cleared)
+
+// Chuyển đổi nhiều cờ cùng một lúc
+flags ^= FLAG_PREMIUM | FLAG_LOCKED;        // flags = 0000_1011
