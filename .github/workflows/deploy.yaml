@@ -1,0 +1,85 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Cache Next.js
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Upload MDX to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          CONTENT_DIR: src/app/content
+        run: |
+          # Size-only sync first (handles new files, size changes, and deletions efficiently)
+          aws s3 sync "$CONTENT_DIR/" "s3://${{ secrets.R2_BUCKET }}/mdx" \
+            --endpoint-url "$ENDPOINT" \
+            --no-progress \
+            --size-only \
+            --delete
+
+          # Then force-upload any files changed in this commit (catches same-size content edits)
+          # Skip if this is the first commit
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            changed_files=$(git diff --name-only --diff-filter=ACM HEAD^ "$CONTENT_DIR/" || echo "")
+
+            for file in $changed_files; do
+              # Strip the $CONTENT_DIR prefix
+              relative_path="${file#$CONTENT_DIR/}"
+              aws s3 cp "$file" "s3://${{ secrets.R2_BUCKET }}/mdx/$relative_path" \
+                --endpoint-url "$ENDPOINT" \
+                --no-progress
+            done
+          fi
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_CHALLENGE_SECRET: ${{ secrets.NEXT_PUBLIC_CHALLENGE_SECRET }}
+          NEXT_PUBLIC_CHALLENGE_RPC_ENDPOINT: ${{ secrets.NEXT_PUBLIC_CHALLENGE_RPC_ENDPOINT }}
+          CERTIFICATION_MINTER_PROGRAM_ID: ${{ secrets.CERTIFICATION_MINTER_PROGRAM_ID }}
+          NEXT_PUBLIC_RPC_ENDPOINT: ${{ secrets.NEXT_PUBLIC_RPC_ENDPOINT }}
+          NEXT_PUBLIC_TWITTER_LINK: ${{ secrets.NEXT_PUBLIC_TWITTER_LINK }}
+          NEXT_PUBLIC_GITHUB_LINK: ${{ secrets.NEXT_PUBLIC_GITHUB_LINK }}
+          NEXT_PUBLIC_DISCORD_LINK: ${{ secrets.NEXT_PUBLIC_DISCORD_LINK }}
+          NEXT_PUBLIC_STAKING_URL: ${{ secrets.NEXT_PUBLIC_STAKING_URL }}
+        run: pnpm exec opennextjs-cloudflare build
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

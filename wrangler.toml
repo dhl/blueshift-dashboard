@@ -1,11 +1,7 @@
 main = ".open-next/worker.js"
 name = "blueshift-dashboard"
-compatibility_date = "2025-03-25"
+compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
-
-routes = [
-    { pattern = "learn.blueshift.gg", custom_domain = true }
-]
 
 [observability]
 enabled = true
@@ -13,3 +9,7 @@ enabled = true
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
+
+[[r2_buckets]]
+binding = 'CONTENT'
+bucket_name = 'blueshift-edu-content'

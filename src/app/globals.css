@@ -131,8 +131,8 @@ h2 code {
     @apply m-0;
 }
 
-.code-block code {
-    background-color: initial;
+pre code {
+  display: grid;
 }
 
 .heading-code {
@@ -147,11 +147,6 @@ h2 code {
   @apply [&::-webkit-scrollbar]:!w-[6px] [&::-webkit-scrollbar-button]:!bg-transparent [&::-webkit-scrollbar-button]:!rounded-full [&::-webkit-scrollbar]:!h-auto [&::-webkit-scrollbar-thumb]:!rounded-full [&::-webkit-scrollbar-thumb]:!bg-background-card-foreground [&::-webkit-scrollbar-track]:!rounded-full [&::-webkit-scrollbar-track]:!bg-transparent;
   scrollbar-width: thin;
   scrollbar-color: var(--color-background-card-foreground) transparent;
-}
-
-
-.rehype-pretty-copy {
-  @apply opacity-0;
 }
 
 .animate-nft {

@@ -1,6 +1,6 @@
 import { ArticleSection } from "../../../../components/ArticleSection/ArticleSection";
 
-# 程序示例 
+# 程序示例
 
 现在让我们看看寄存器（r0-r10）、内存区域和指令如何在实际程序中协同工作。我们将从最简单的 sBPF 程序开始，以了解基本的执行流程。
 
@@ -40,7 +40,7 @@ fn process_instruction(
 
 然后我们需要查找 `.text` 部分——这是二进制文件中存储可执行代码的部分。
 
-```pinocchio_noop-dump.txt
+```
 Disassembly of section .text
 0000000000000120 <entrypoint>
      120 b7 00 00 00 00 00 00 00      	mov64 r0, 0x0

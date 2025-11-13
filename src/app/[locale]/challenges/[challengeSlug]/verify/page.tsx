@@ -8,11 +8,12 @@ import ProgramChallengesContent from "@/app/components/Challenges/ProgramChallen
 import ClientChallengesContent from "@/app/components/Challenges/ClientChallengesContent";
 import CrosshairCorners from "@/app/components/Graphics/CrosshairCorners";
 import { notFound } from "next/navigation";
-import { getChallenge } from "@/app/utils/mdx";
+import { getChallenge, renderSafeMdx } from "@/app/utils/mdx";
 import BackToCourseButtonClient from "@/app/components/Challenges/BackToCourseButtonClient";
 import ContentFallbackNotice from "@/app/components/ContentFallbackNotice";
 import { Metadata } from "next";
 import { getPathname } from "@/i18n/navigation";
+import { fetchContentFile } from "@/app/utils/content-source";
 
 interface ChallengePageProps {
   params: Promise<{
@@ -71,16 +72,28 @@ export default async function ChallengePage({ params }: ChallengePageProps) {
   let ChallengeContent;
   let challengeLocale = locale;
   try {
-    const challengeModule = await import(
-      `@/app/content/challenges/${challengeMetadata.slug}/${locale}/verify.mdx`
+    // const challengeModule = await import(
+    //   `@/app/content/challenges/${challengeMetadata.slug}/${locale}/verify.mdx`
+    // );
+
+    // ChallengeContent = challengeModule.default;
+
+    const code = await fetchContentFile(
+      `challenges/${challengeMetadata.slug}/${locale}/verify.mdx`,
     );
-    ChallengeContent = challengeModule.default;
+    ChallengeContent = () => renderSafeMdx(code);
   } catch {
     try {
-      const challengeModule = await import(
-        `@/app/content/challenges/${challengeMetadata.slug}/en/verify.mdx`
+      // const challengeModule = await import(
+      //   `@/app/content/challenges/${challengeMetadata.slug}/en/verify.mdx`
+      // );
+      // ChallengeContent = challengeModule.default;
+
+      const code = await fetchContentFile(
+        `challenges/${challengeMetadata.slug}/en/verify.mdx`,
       );
-      ChallengeContent = challengeModule.default;
+      ChallengeContent = () => renderSafeMdx(code);
+
       challengeLocale = "en";
     } catch {
       notFound();

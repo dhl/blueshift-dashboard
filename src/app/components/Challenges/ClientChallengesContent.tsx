@@ -197,10 +197,13 @@ export default function ChallengesContent({
   useEffect(() => {
     const fetchSolutionsTemplate = async () => {
       try {
-        const codeModule = await import(
-          `@/app/content/challenges/${currentChallenge.slug}/challenge.ts.template?raw`
-        );
-        const template = codeModule.default;
+        // const codeModule = await import(
+        //   `@/app/content/challenges/${currentChallenge.slug}/challenge.ts.template?raw`
+        // );
+        // const template = codeModule.default;
+
+        const response = await fetch(`https://raw.githubusercontent.com/blueshift-gg/blueshift-dashboard/refs/heads/master/src/app/content/challenges/${currentChallenge.slug}/challenge.ts.template`);
+        const template = await response.text();
 
         setInitialEditorCode(template);
 

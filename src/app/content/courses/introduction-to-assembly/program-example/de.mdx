@@ -1,6 +1,6 @@
 import { ArticleSection } from "../../../../components/ArticleSection/ArticleSection";
 
-# Programm-Beispiel 
+# Programm-Beispiel
 
 Schauen wir uns nun an, wie Register (r0-r10), Speicherbereiche und Anweisungen in einem tatsächlichen Programm zusammenarbeiten. Wir beginnen mit dem einfachsten möglichen sBPF-Programm, um den grundlegenden Ausführungsablauf zu verstehen.
 
@@ -40,7 +40,7 @@ Wenn wir diesen Code mit `cargo build-sbf --dump` erstellen, erhalten wir einen 
 
 Wir werden dann nach dem Abschnitt `.text` suchen - dem Teil unserer Binärdatei, in dem ausführbarer Code gespeichert ist.
 
-```pinocchio_noop-dump.txt
+```
 Disassembly of section .text
 0000000000000120 <entrypoint>
      120 b7 00 00 00 00 00 00 00      	mov64 r0, 0x0

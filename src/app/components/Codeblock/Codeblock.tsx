@@ -60,9 +60,7 @@ export function Codeblock(props: CodeblockProps) {
         )}
       </div>
       <div className="bg-background-card" ref={preRef}>
-        <pre>
-          {children}
-        </pre>
+        {children}
       </div>
     </div>
   );

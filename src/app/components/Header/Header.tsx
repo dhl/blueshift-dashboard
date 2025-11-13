@@ -201,7 +201,7 @@ export default function HeaderContent() {
                     initial={{ x: "100dvw" }}
                     animate={{ x: 0 }}
                     exit={{ x: "100dvw" }}
-                    transition={{ duration: 0.15, easing: anticipate }}
+                    transition={{ duration: 0.15, ease: anticipate }}
                   >
                     <div className="flex gap-x-6 items-center">
                       {/* Mobile Nav Links - Courses */}

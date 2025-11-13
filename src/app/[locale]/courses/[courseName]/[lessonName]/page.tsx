@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import MdxLayout from "@/app/mdx-layout";
-import { getChallenge, getCourse } from "@/app/utils/mdx";
+import { getChallenge, getCourse, renderSafeMdx } from "@/app/utils/mdx";
 import { courseColors } from "@/app/utils/course";
 import Icon from "@/app/components/Icon/Icon";
 import Divider from "@/app/components/Divider/Divider";
@@ -16,6 +16,7 @@ import { Metadata } from "next";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { decodeCoreCollectionNumMinted } from "@/lib/nft/decodeCoreCollectionNumMinted";
 import ContentFallbackNotice from "@/app/components/ContentFallbackNotice";
+import { fetchContentFile } from "@/app/utils/content-source";
 
 interface LessonPageProps {
   params: Promise<{
@@ -69,17 +70,29 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   let Lesson;
   let lessonLocale = locale;
+
   try {
-    const lessonModule = await import(
-      `@/app/content/courses/${courseName}/${lessonName}/${locale}.mdx`
+    // const lessonModule = await import(
+    //   `@/app/content/courses/${courseName}/${lessonName}/${locale}.mdx`
+    // );
+    // Lesson = lessonModule.default;
+
+    const code = await fetchContentFile(
+      `courses/${courseName}/${lessonName}/${locale}.mdx`,
     );
-    Lesson = lessonModule.default;
+    Lesson = () => renderSafeMdx(code);
   } catch {
     try {
-      const lessonModule = await import(
-        `@/app/content/courses/${courseName}/${lessonName}/en.mdx`
+      // const lessonModule = await import(
+      //   `@/app/content/courses/${courseName}/${lessonName}/en.mdx`
+      // );
+      // Lesson = lessonModule.default;
+
+      const code = await fetchContentFile(
+        `courses/${courseName}/${lessonName}/en.mdx`,
       );
-      Lesson = lessonModule.default;
+      Lesson = () => renderSafeMdx(code);
+
       lessonLocale = "en";
     } catch {
       notFound();

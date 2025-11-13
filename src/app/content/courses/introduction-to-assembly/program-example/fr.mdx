@@ -1,6 +1,6 @@
 import { ArticleSection } from "../../../../components/ArticleSection/ArticleSection";
 
-# Exemple de programme 
+# Exemple de programme
 
 Voyons maintenant comment les registres (r0-r10), les régions mémoire et les instructions fonctionnent ensemble dans un programme réel. Nous commencerons par le programme sBPF le plus simple possible pour comprendre le flux d'exécution fondamental.
 
@@ -40,7 +40,7 @@ Si nous compilons ce code avec `cargo build-sbf --dump`, nous obtiendrons un dum
 
 Nous voudrons ensuite chercher la section `.text` — la partie de notre binaire où le code exécutable est stocké.
 
-```pinocchio_noop-dump.txt
+```
 Disassembly of section .text
 0000000000000120 <entrypoint>
      120 b7 00 00 00 00 00 00 00      	mov64 r0, 0x0
