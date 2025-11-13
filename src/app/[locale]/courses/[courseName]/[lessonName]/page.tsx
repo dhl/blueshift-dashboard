@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import MdxLayout from "@/app/mdx-layout";
-import { getChallenge, getCourse } from "@/app/utils/mdx";
+import { getChallenge, getCourse, renderSafeMdx } from "@/app/utils/mdx";
 import { courseColors } from "@/app/utils/course";
 import Icon from "@/app/components/Icon/Icon";
 import Divider from "@/app/components/Divider/Divider";
@@ -69,17 +69,27 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   let Lesson;
   let lessonLocale = locale;
+
   try {
-    const lessonModule = await import(
-      `@/app/content/courses/${courseName}/${lessonName}/${locale}.mdx`
-    );
-    Lesson = lessonModule.default;
+    // const lessonModule = await import(
+    //   `@/app/content/courses/${courseName}/${lessonName}/${locale}.mdx`
+    // );
+    // Lesson = lessonModule.default;
+
+    const response = await fetch(`https://raw.githubusercontent.com/blueshift-gg/blueshift-dashboard/refs/heads/master/src/app/content/courses/${courseName}/${lessonName}/${locale}.mdx`);
+    const code = await response.text();
+    Lesson = () => renderSafeMdx(code);
   } catch {
     try {
-      const lessonModule = await import(
-        `@/app/content/courses/${courseName}/${lessonName}/en.mdx`
-      );
-      Lesson = lessonModule.default;
+      // const lessonModule = await import(
+      //   `@/app/content/courses/${courseName}/${lessonName}/en.mdx`
+      // );
+      // Lesson = lessonModule.default;
+
+      const response = await fetch(`https://raw.githubusercontent.com/blueshift-gg/blueshift-dashboard/refs/heads/master/src/app/content/courses/${courseName}/${lessonName}/en.mdx`);
+      const code = await response.text();
+      Lesson = () => renderSafeMdx(code);
+
       lessonLocale = "en";
     } catch {
       notFound();

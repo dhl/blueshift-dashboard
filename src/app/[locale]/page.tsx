@@ -2,9 +2,14 @@ import { useTranslations } from "next-intl";
 import Courses from "../components/CoursesContent/Courses";
 import HeadingReveal from "../components/HeadingReveal/HeadingReveal";
 import CrosshairCorners from "../components/Graphics/CrosshairCorners";
+import fs from "node:fs";
 
 export default function Home() {
   const t = useTranslations();
+
+  console.log("./ :", fs.readdirSync("./"));
+  console.log("/ :", fs.readdirSync("/"));
+  console.log("/bundle :", fs.readdirSync("/bundle"));
 
   return (
     <div className="flex flex-col w-full gap-y-8">

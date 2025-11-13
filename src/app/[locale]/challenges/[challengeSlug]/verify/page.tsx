@@ -8,7 +8,7 @@ import ProgramChallengesContent from "@/app/components/Challenges/ProgramChallen
 import ClientChallengesContent from "@/app/components/Challenges/ClientChallengesContent";
 import CrosshairCorners from "@/app/components/Graphics/CrosshairCorners";
 import { notFound } from "next/navigation";
-import { getChallenge } from "@/app/utils/mdx";
+import { getChallenge, renderSafeMdx } from "@/app/utils/mdx";
 import BackToCourseButtonClient from "@/app/components/Challenges/BackToCourseButtonClient";
 import ContentFallbackNotice from "@/app/components/ContentFallbackNotice";
 import { Metadata } from "next";
@@ -71,16 +71,26 @@ export default async function ChallengePage({ params }: ChallengePageProps) {
   let ChallengeContent;
   let challengeLocale = locale;
   try {
-    const challengeModule = await import(
-      `@/app/content/challenges/${challengeMetadata.slug}/${locale}/verify.mdx`
-    );
-    ChallengeContent = challengeModule.default;
+    // const challengeModule = await import(
+    //   `@/app/content/challenges/${challengeMetadata.slug}/${locale}/verify.mdx`
+    // );
+
+    // ChallengeContent = challengeModule.default;
+
+    const response = await fetch(`https://raw.githubusercontent.com/blueshift-gg/blueshift-dashboard/refs/heads/master/src/app/content/challenges/${challengeMetadata.slug}/${locale}/verify.mdx`);
+    const code = await response.text();
+    ChallengeContent = () => renderSafeMdx(code);
   } catch {
     try {
-      const challengeModule = await import(
-        `@/app/content/challenges/${challengeMetadata.slug}/en/verify.mdx`
-      );
-      ChallengeContent = challengeModule.default;
+      // const challengeModule = await import(
+      //   `@/app/content/challenges/${challengeMetadata.slug}/en/verify.mdx`
+      // );
+      // ChallengeContent = challengeModule.default;
+
+      const response = await fetch(`https://raw.githubusercontent.com/blueshift-gg/blueshift-dashboard/refs/heads/master/src/app/content/challenges/${challengeMetadata.slug}/en/verify.mdx`);
+      const code = await response.text();
+      ChallengeContent = () => renderSafeMdx(code);
+
       challengeLocale = "en";
     } catch {
       notFound();
