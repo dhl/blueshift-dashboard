@@ -27,7 +27,9 @@ export async function fetchCompiledContent(
 
   const normalizedPath = relativePath.replace(/^\/+/, "");
 
-  const isDevelopment = process.env.NEXTJS_ENV === "development";
+  const isDevelopment = process.env.NODE_ENV === "development";
+
+  console.log("process.env.NODE_ENV:", process.env.NODE_ENV);
 
   if (isDevelopment) {
     // In development, read the raw MDX file and return it for on-the-fly compilation
